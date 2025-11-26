@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, Search, Bell, HelpCircle, User, Home, Inbox, Users, LayoutGrid, MoreHorizontal, CheckCircle2 } from 'lucide-react';
+import { NewTaskModal } from '../components/NewTaskModal';
 
 export function Dashboard({ onNavigate }: { onNavigate: (page: 'home') => void }) {
   const [tasks, setTasks] = useState([
@@ -11,6 +12,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: 'home') => void }
   const [newTask, setNewTask] = useState('');
   const [activeTab, setActiveTab] = useState<'todo' | 'done' | 'delegated'>('todo');
   const [activeSidebarItem, setActiveSidebarItem] = useState('home');
+  const [showNewTaskModal, setShowNewTaskModal] = useState(false);
 
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +28,17 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: 'home') => void }
     } else {
       setCompletedTasks([...completedTasks, task]);
     }
+  };
+
+  const handleCreateTask = (newTaskData: {
+    name: string;
+    description: string;
+    status: string;
+    dueDate: string;
+    priority: string;
+    tags: string[];
+  }) => {
+    setTasks([...tasks, newTaskData.name]);
   };
 
   const uncompletedTasks = tasks.filter(t => !completedTasks.includes(t));
@@ -62,7 +75,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: 'home') => void }
           <button className="text-gray-600 hover:text-gray-800 transition">
             <User className="w-5 h-5" />
           </button>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium text-sm hover:bg-blue-600 transition">
+          <button onClick={() => setShowNewTaskModal(true)} className="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium text-sm hover:bg-blue-600 transition">
             New
           </button>
         </div>
@@ -267,6 +280,13 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: 'home') => void }
           </div>
         </main>
       </div>
+
+      {showNewTaskModal && (
+        <NewTaskModal
+          onClose={() => setShowNewTaskModal(false)}
+          onCreateTask={handleCreateTask}
+        />
+      )}
     </div>
   );
 }
