@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Search, Bell, HelpCircle, User, Home, Inbox, Users, LayoutGrid, MoreHorizontal, CheckCircle2 } from 'lucide-react';
 
 export function Dashboard({ onNavigate }: { onNavigate: (page: 'home') => void }) {
   const [tasks, setTasks] = useState([
@@ -7,7 +7,10 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: 'home') => void }
     'Call John',
     'Buy groceries'
   ]);
+  const [completedTasks, setCompletedTasks] = useState<string[]>([]);
   const [newTask, setNewTask] = useState('');
+  const [activeTab, setActiveTab] = useState<'todo' | 'done' | 'delegated'>('todo');
+  const [activeSidebarItem, setActiveSidebarItem] = useState('home');
 
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,32 +20,221 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: 'home') => void }
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-300 to-white flex flex-col">
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-2xl">
-          <div className="text-center mb-12">
-            <h1 className="text-5xl md:text-6xl font-bold text-white drop-shadow-lg mb-4">
-              Your Tasks
-            </h1>
-          </div>
+  const toggleTaskComplete = (task: string) => {
+    if (completedTasks.includes(task)) {
+      setCompletedTasks(completedTasks.filter(t => t !== task));
+    } else {
+      setCompletedTasks([...completedTasks, task]);
+    }
+  };
 
-          <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-8 space-y-8">
-            <div className="space-y-4">
-              <ul className="space-y-3">
-                {tasks.map((task, index) => (
-                  <li key={index} className="flex items-center gap-3 text-blue-900 text-lg">
-                    <span className="text-2xl font-bold text-blue-600">{index + 1}.</span>
-                    <span>{task}</span>
-                  </li>
-                ))}
-              </ul>
+  const uncompletedTasks = tasks.filter(t => !completedTasks.includes(t));
+  const doneTasksList = tasks.filter(t => completedTasks.includes(t));
+
+  return (
+    <div className="min-h-screen bg-white flex flex-col">
+      <nav className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+            <span className="text-white font-bold text-sm">TM</span>
+          </div>
+          <span className="text-gray-800 font-semibold text-lg">Task Manager</span>
+        </div>
+
+        <div className="flex-1 max-w-md mx-8">
+          <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-4 py-2">
+            <Search className="w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="bg-transparent outline-none text-sm text-gray-700 w-full"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-6">
+          <button className="text-gray-600 hover:text-gray-800 transition">
+            <Bell className="w-5 h-5" />
+          </button>
+          <button className="text-gray-600 hover:text-gray-800 transition">
+            <HelpCircle className="w-5 h-5" />
+          </button>
+          <button className="text-gray-600 hover:text-gray-800 transition">
+            <User className="w-5 h-5" />
+          </button>
+          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium text-sm hover:bg-blue-600 transition">
+            New
+          </button>
+        </div>
+      </nav>
+
+      <div className="flex flex-1">
+        <aside className="w-64 bg-white border-r border-gray-200 p-4">
+          <nav className="space-y-2">
+            {[
+              { icon: Home, label: 'Home', id: 'home' },
+              { icon: Inbox, label: 'Inbox', id: 'inbox' },
+              { icon: Users, label: 'Teams', id: 'teams' },
+              { icon: LayoutGrid, label: 'Dashboards', id: 'dashboards' },
+              { icon: MoreHorizontal, label: 'More', id: 'more' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSidebarItem(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition font-medium text-sm ${
+                  activeSidebarItem === item.id
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <item.icon className="w-5 h-5" />
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        <main className="flex-1 p-8 overflow-auto">
+          <div className="max-w-6xl">
+            <div className="mb-12">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">Your Tasks</h1>
+              <p className="text-gray-600 font-medium">Good afternoon, User</p>
             </div>
 
-            <div className="border-t-2 border-blue-200 pt-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+              <div className="lg:col-span-1">
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">Recents</h2>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                      <span className="text-sm">Finish homework</span>
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                      <span className="text-sm">Call John</span>
+                    </li>
+                    <li className="flex items-center gap-2 text-gray-700">
+                      <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                      <span className="text-sm">Buy groceries</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="lg:col-span-1">
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">Agenda</h2>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
+                      <CheckCircle2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700">Today</span>
+                    </div>
+                    <div className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">3 tasks pending</p>
+                        <p className="text-xs text-gray-500">This week</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-1">
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Stats</h2>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                      <span className="text-sm text-gray-600">To Do</span>
+                      <span className="font-bold text-lg text-gray-900">{uncompletedTasks.length}</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                      <span className="text-sm text-gray-600">Done</span>
+                      <span className="font-bold text-lg text-green-600">{doneTasksList.length}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Total</span>
+                      <span className="font-bold text-lg text-gray-900">{tasks.length}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-xl">
+              <div className="border-b border-gray-200">
+                <div className="flex gap-8 px-6 pt-6">
+                  {['To Do', 'Done', 'Delegated'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab.toLowerCase() as 'todo' | 'done' | 'delegated')}
+                      className={`pb-4 font-medium text-sm transition ${
+                        activeTab === tab.toLowerCase()
+                          ? 'text-blue-600 border-b-2 border-blue-600'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-6">
+                {activeTab === 'todo' && (
+                  <div className="space-y-3">
+                    {uncompletedTasks.length > 0 ? (
+                      uncompletedTasks.map((task, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition">
+                          <button
+                            onClick={() => toggleTaskComplete(task)}
+                            className="w-5 h-5 rounded border-2 border-blue-300 hover:bg-blue-50 flex items-center justify-center flex-shrink-0 transition"
+                          >
+                            {completedTasks.includes(task) && (
+                              <CheckCircle2 className="w-4 h-4 text-blue-500" />
+                            )}
+                          </button>
+                          <div className="flex-1">
+                            <p className="text-gray-900 font-medium">{task}</p>
+                            <p className="text-xs text-gray-500">Today</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center text-gray-500 py-8">No tasks to do</p>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'done' && (
+                  <div className="space-y-3">
+                    {doneTasksList.length > 0 ? (
+                      doneTasksList.map((task, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition opacity-75">
+                          <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                          <div className="flex-1">
+                            <p className="text-gray-500 line-through font-medium">{task}</p>
+                            <p className="text-xs text-gray-400">Completed</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center text-gray-500 py-8">No completed tasks</p>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'delegated' && (
+                  <p className="text-center text-gray-500 py-8">No delegated tasks</p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-10 bg-white border border-gray-200 rounded-xl p-6">
               <form onSubmit={handleAddTask} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-blue-900 mb-2">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
                     New Task
                   </label>
                   <input
@@ -50,43 +242,31 @@ export function Dashboard({ onNavigate }: { onNavigate: (page: 'home') => void }
                     value={newTask}
                     onChange={(e) => setNewTask(e.target.value)}
                     placeholder="What needs to be done?"
-                    className="w-full px-4 py-3 bg-blue-50 border-2 border-blue-200 rounded-lg text-blue-900 placeholder-blue-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-all duration-200"
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-white transition"
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
-                >
-                  <Plus className="w-5 h-5" />
-                  Add Task
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Task
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('home')}
+                    className="px-6 py-2 border-2 border-blue-500 text-blue-500 hover:bg-blue-50 rounded-lg font-medium text-sm transition"
+                  >
+                    Logout
+                  </button>
+                </div>
               </form>
             </div>
-
-            <div className="border-t-2 border-blue-200 pt-8">
-              <button
-                onClick={() => onNavigate('home')}
-                className="w-full px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                Logout
-              </button>
-            </div>
           </div>
-        </div>
-      </main>
-
-      <footer className="bg-white/10 backdrop-blur-sm py-6 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="flex justify-center gap-6 text-white/80 text-sm">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <span>·</span>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <span>·</span>
-            <a href="#" className="hover:text-white transition-colors">Help</a>
-          </div>
-        </div>
-      </footer>
+        </main>
+      </div>
     </div>
   );
 }
